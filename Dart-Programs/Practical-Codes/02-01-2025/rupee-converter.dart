@@ -1,21 +1,21 @@
-void Convert({required String convertTo, required int rupee}){
+void Convert({required String convertTo, required int rupee}) {
   switch (convertTo) {
     case 'USD':
-      print("$rupee INR = ${rupee * 0.012} USD");
+      print("${rupee} INR = ${rupee * 0.012} USD");
       break;
     case 'EUR':
-      print("${rupee * 0.011} EUR");
+      print("${rupee} INR = ${rupee * 0.012} EUR");
       break;
     case 'GBP':
-      print("${rupee * 0.009} GBP");
+      print("${rupee} INR = ${rupee * 0.012} GBP");
       break;
     case 'AUD':
-      print("${rupee * 0.017} AUD");
+      print("${rupee} INR = ${rupee * 0.008} AUD");
       break;
   }
 }
 
-void main(){
-  Convert(convertTo: 'USD',rupee: 1000);
+void main() {
+  Convert(convertTo: 'USD', rupee: 1000);
   Convert(convertTo: 'AUD', rupee: 200);
 }

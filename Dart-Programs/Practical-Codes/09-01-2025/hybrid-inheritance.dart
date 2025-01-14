@@ -11,21 +11,20 @@ class Student {
     print("Admission Procedure for $name");
     print("Fee Information: $instituteName fees.");
     print("Payment Status: ${paymentStatus ? 'Paid' : 'Pending'}");
-    print("-----------------------------------\n\n");
-
+    print("-----------------------------------");
   }
 
   void makePayment() {
     paymentStatus = true;
-    print("\n\n-----------------------------------");
+    print("-----------------------------------");
     print("$name has made the payment.");
-    print("-----------------------------------\n\n");
+    print("-----------------------------------");
   }
 
   void subjectSelection(String subject) {
-    print("\n\n-----------------------------------");
+    print("-----------------------------------");
     print("$name selected $subject as their subject.");
-    print("-----------------------------------\n\n");
+    print("-----------------------------------");
   }
 }
 
@@ -35,7 +34,7 @@ class BCAStudent extends Student {
 
   BCAStudent(name, rollno, {paymentStatus = false, this.minor, this.year})
       : super(name, rollno, paymentStatus: paymentStatus) {
-    print("\n\n-----------------------------------");
+    print("\n-----------------------------------");
     print("BCA Admission Procedure");
     print("-----------------------------------");
     admissionProcedure();
@@ -48,9 +47,9 @@ class CommerceStudent extends Student {
 
   CommerceStudent(name, rollno, {paymentStatus = false, this.minor, this.year})
       : super(name, rollno, paymentStatus: paymentStatus) {
-    print("\n\n-----------------------------------\n\n");
+    print("\n-----------------------------------");
     print("Commerce Admission Procedure");
-    print("\n\n-----------------------------------");
+    print("-----------------------------------");
     admissionProcedure();
   }
 }

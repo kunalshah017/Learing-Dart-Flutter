@@ -2,86 +2,90 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MaterialApp(home: WeatherApp()));
 
-class MyApp extends StatelessWidget {
+class WeatherApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: CurrentWeatherPage());
-  }
+  _WeatherAppState createState() => _WeatherAppState();
 }
 
-class Weather {
-  final double? temp;
-  final double? feelsLike;
-  final double? low;
-  final double? high;
-  final String? description;
+class _WeatherAppState extends State<WeatherApp> {
+  Map<String, dynamic>? weatherData;
+  bool isLoading = true;
+  String errorMessage = '';
 
-  Weather({this.temp, this.feelsLike, this.low, this.high, this.description});
-
-  factory Weather.fromJson(Map<String, dynamic> json) {
-    return Weather(
-      temp: json['main']['temp'].toDouble(),
-      feelsLike: json['main']['feels_like'].toDouble(),
-      low: json['main']['temp_min'].toDouble(),
-      high: json['main']['temp_max'].toDouble(),
-      description: json['weather'][0]['description'],
-    );
-  }
-}
-
-class CurrentWeatherPage extends StatefulWidget {
   @override
-  _CurrentWeatherPageState createState() => _CurrentWeatherPageState();
-}
+  void initState() {
+    super.initState();
+    fetchWeather();
+  }
 
-class _CurrentWeatherPageState extends State<CurrentWeatherPage> {
-  Weather? _weather;
+  Future<void> fetchWeather() async {
+    setState(() => isLoading = true);
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://api.openweathermap.org/data/2.5/weather?q=mumbai&appid=3c97151c47f203334e308a7860ea8826&units=metric',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          weatherData = jsonDecode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load weather data';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Weather Data')),
+      appBar: AppBar(
+        title: Text('Weather App'),
+        actions: [
+          IconButton(icon: Icon(Icons.refresh), onPressed: fetchWeather),
+        ],
+      ),
       body: Center(
-        child: FutureBuilder(
-          builder: (context, snapshot) {
-            if (snapshot != null) {
-              this._weather = snapshot.data;
-            }
-            return weatherBox(_weather!);
-          },
-          future: getCurrentWeather(),
-        ),
+        child:
+            isLoading
+                ? CircularProgressIndicator()
+                : errorMessage.isNotEmpty
+                ? Text(errorMessage)
+                : weatherData != null
+                ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${weatherData!['main']['temp']}°C',
+                      style: TextStyle(fontSize: 40),
+                    ),
+                    Text(
+                      weatherData!['weather'][0]['description'],
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    SizedBox(height: 20),
+                    Text('Feels like: ${weatherData!['main']['feels_like']}°C'),
+                    Text(
+                      'H: ${weatherData!['main']['temp_max']}°C   '
+                      'L: ${weatherData!['main']['temp_min']}°C',
+                    ),
+                  ],
+                )
+                : Text('No data available'),
       ),
     );
   }
-}
-
-Widget weatherBox(Weather _weather) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: <Widget>[
-      Text("${_weather.temp}°C"),
-      Text("${_weather.description}"),
-      Text("Feels:${_weather.feelsLike}°C"),
-      Text("H:${_weather.high}°C    L:${_weather.low}°C"),
-    ],
-  );
-}
-
-Future getCurrentWeather() async {
-  Weather? weather;
-  String city = "mumbai";
-  String apiKey = "3c97151c47f203334e308a7860ea8826";
-  var url =
-      "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric";
-
-  final response = await http.get(Uri.parse(url));
-  if (response.statusCode == 200) {
-    weather = Weather.fromJson(jsonDecode(response.body));
-  }
-  return weather;
 }
